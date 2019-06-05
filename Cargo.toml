@@ -1,0 +1,21 @@
+[package]
+name = "fast-lines"
+version = "0.1.0"
+authors = ["quininer <quininer@live.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+safemem = "0.3"
+memchr = "2"
+bstr = "0.1"
+
+[dev-dependencies]
+quickcheck = "0.8"
+quickcheck_macros = "0.8"
+criterion = "0.2"
+
+[[bench]]
+name = "bench"
+harness = false
