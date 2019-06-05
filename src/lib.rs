@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", feature(copy_within, read_initializer, try_reserve))]
+
 use std::io::{ self, Read };
 use bstr::BStr;
 use memchr::memchr;
@@ -54,9 +56,23 @@ impl<R: Read> ReadLine<R> {
             if self.pos == self.buf.len() {
                 let len = self.pos - self.eol;
                 if self.sol < len {
+                    #[cfg(feature = "nightly")] unsafe {
+                        let len = self.buf.len();
+                        self.buf.try_reserve(GROW_SIZE)
+                            .map_err(|_| io::Error::new(io::ErrorKind::Other, "oom"))?;
+                        self.buf.set_len(self.buf.capacity());
+                        self.reader.initializer().initialize(&mut self.buf[len..]);
+                    }
+
+                    #[cfg(not(feature = "nightly"))]
                     self.buf.resize(self.buf.len() + GROW_SIZE, 0);
                 } else {
+                    #[cfg(feature = "nightly")]
+                    self.buf.copy_within(self.eol..self.pos, 0);
+
+                    #[cfg(not(feature = "nightly"))]
                     safemem::copy_over(&mut self.buf[..], self.eol, 0, len);
+
                     self.sol = 0;
                     self.eol = 0;
                     self.pos = len;
