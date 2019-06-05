@@ -83,6 +83,13 @@ fn test_line() -> io::Result<()> {
             input.push(b'a');
             input
         };
+        {
+            let mut input = Vec::new();
+            input.extend_from_slice(&[b'a'; 1000][..]);
+            input.push(b'\n');
+            input.extend_from_slice(&[b'a'; 23][..]);
+            input
+        };
     };
 
 

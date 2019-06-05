@@ -56,8 +56,8 @@ impl<R: Read> ReadLine<R> {
                 if self.sol < len {
                     self.buf.resize(self.buf.len() + GROW_SIZE, 0);
                 } else {
-                    // self.buf.copy_within(self.eol..self.pos, 0);
                     safemem::copy_over(&mut self.buf[..], self.eol, 0, len);
+                    self.sol = 0;
                     self.eol = 0;
                     self.pos = len;
                 }
@@ -80,21 +80,18 @@ impl<R: Read> ReadLine<R> {
     pub fn get(&self) -> Option<&BStr> {
         // TODO eliminate bounds check
 
-        if let Some(len) = self.eol.checked_sub(self.sol).filter(|&n| n > 0) {
-            let eol = if len >= 1 && self.buf[self.eol - 1] == LINE_FEED {
-                if len >= 2 && self.buf[self.eol - 2] == CARRIAGE_RETURN {
-                    self.eol - 2
-                } else {
-                    self.eol - 1
-                }
+        let len = self.eol.checked_sub(self.sol).filter(|&n| n > 0)?;
+        let eol = if len >= 1 && self.buf[self.eol - 1] == LINE_FEED {
+            if len >= 2 && self.buf[self.eol - 2] == CARRIAGE_RETURN {
+                self.eol - 2
             } else {
-                self.eol
-            };
-
-            Some(BStr::from_bytes(&self.buf[self.sol..eol]))
+                self.eol - 1
+            }
         } else {
-            None
-        }
+            self.eol
+        };
+
+        Some(BStr::from_bytes(&self.buf[self.sol..eol]))
     }
 
     pub fn read_line(&mut self) -> io::Result<Option<&BStr>> {
