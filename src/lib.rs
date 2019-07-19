@@ -1,4 +1,4 @@
-#![cfg_attr(feature = "nightly", feature(copy_within, read_initializer, try_reserve))]
+#![cfg_attr(feature = "nightly", feature(read_initializer, try_reserve))]
 
 use std::io::{ self, Read };
 use memchr::memchr;
@@ -66,11 +66,7 @@ impl<R: Read> ReadLine<R> {
                     #[cfg(not(feature = "nightly"))]
                     self.buf.resize(self.buf.len() + GROW_SIZE, 0);
                 } else {
-                    #[cfg(feature = "nightly")]
                     self.buf.copy_within(self.eol..self.pos, 0);
-
-                    #[cfg(not(feature = "nightly"))]
-                    safemem::copy_over(&mut self.buf[..], self.eol, 0, len);
 
                     self.sol = 0;
                     self.eol = 0;

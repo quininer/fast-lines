@@ -10,7 +10,6 @@ edition = "2018"
 nightly = []
 
 [dependencies]
-safemem = "0.3"
 memchr = "2"
 
 [dev-dependencies]
