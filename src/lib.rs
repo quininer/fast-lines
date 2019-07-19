@@ -1,7 +1,6 @@
 #![cfg_attr(feature = "nightly", feature(copy_within, read_initializer, try_reserve))]
 
 use std::io::{ self, Read };
-use bstr::BStr;
 use memchr::memchr;
 
 const LINE_FEED: u8 = b'\n';
@@ -93,7 +92,7 @@ impl<R: Read> ReadLine<R> {
         }
     }
 
-    pub fn get(&self) -> Option<&BStr> {
+    pub fn get(&self) -> Option<&[u8]> {
         // TODO eliminate bounds check
 
         let len = self.eol.checked_sub(self.sol).filter(|&n| n > 0)?;
@@ -107,10 +106,10 @@ impl<R: Read> ReadLine<R> {
             self.eol
         };
 
-        Some(BStr::from_bytes(&self.buf[self.sol..eol]))
+        Some(&self.buf[self.sol..eol])
     }
 
-    pub fn read_line(&mut self) -> io::Result<Option<&BStr>> {
+    pub fn read_line(&mut self) -> io::Result<Option<&[u8]>> {
         self.advance()?;
         Ok(self.get())
     }

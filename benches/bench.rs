@@ -1,5 +1,6 @@
 use std::io::{ BufRead, BufReader, Cursor };
 use criterion::{ criterion_main, criterion_group, Criterion, black_box };
+use bstr::io::BufReadExt;
 use fast_lines::ReadLine;
 
 const DATA: &[u8] = include_bytes!("../src/lib.rs");
@@ -49,5 +50,18 @@ fn bench_io_read_until(c: &mut Criterion) {
     });
 }
 
-criterion_group!(read_lines, bench_fast, bench_io_lines, bench_io_read_until);
+fn bench_bstr_byte_line(c: &mut Criterion) {
+    c.bench_function("bstr_byte_line", |b| {
+        b.iter(|| {
+            let reader = Cursor::new(black_box(DATA));
+            let reader = BufReader::new(reader);
+            let _ = reader.for_byte_line(|line| {
+                black_box(line);
+                Ok(true)
+            });
+        });
+    });
+}
+
+criterion_group!(read_lines, bench_fast, bench_io_lines, bench_io_read_until, bench_bstr_byte_line);
 criterion_main!(read_lines);

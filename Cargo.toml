@@ -12,9 +12,9 @@ nightly = []
 [dependencies]
 safemem = "0.3"
 memchr = "2"
-bstr = "0.1"
 
 [dev-dependencies]
+bstr = "0.2"
 quickcheck = "0.8"
 quickcheck_macros = "0.8"
 criterion = "0.2"
